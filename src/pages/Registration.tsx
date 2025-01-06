@@ -3,17 +3,61 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+const driverFormSchema = z.object({
+  fullName: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().min(10, "Phone number must be at least 10 digits"),
+  vehicleType: z.enum(["car", "motorcycle", "van"]),
+  licenseNumber: z.string().min(5, "License number must be at least 5 characters"),
+  vehiclePlate: z.string().min(4, "Vehicle plate must be at least 4 characters"),
+});
 
 const Registration = () => {
   const navigate = useNavigate();
-  const [selectedRole, setSelectedRole] = useState<"driver" | "customer" | null>(null);
+  const [selectedRole, setSelectedRole] = useState<"driver" | "customer" | null>(
+    null
+  );
+
+  const form = useForm<z.infer<typeof driverFormSchema>>({
+    resolver: zodResolver(driverFormSchema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      phone: "",
+      vehicleType: "car",
+      licenseNumber: "",
+      vehiclePlate: "",
+    },
+  });
+
+  const onSubmit = (values: z.infer<typeof driverFormSchema>) => {
+    console.log("Form submitted:", values);
+    toast.success("Registration successful!");
+    navigate("/delivery");
+  };
 
   const handleRoleSelection = (role: "driver" | "customer") => {
     setSelectedRole(role);
-    toast.success(`Registered as ${role}`);
-    // For now, just navigate to the main page after selection
-    navigate("/delivery");
+    if (role === "customer") {
+      toast.success("Registered as customer");
+      navigate("/delivery");
+    }
   };
 
   return (
@@ -31,6 +75,7 @@ const Registration = () => {
         </div>
 
         <div className="grid md:grid-cols-2 gap-6 px-4">
+          {/* Customer Card */}
           <Card
             className={`p-6 cursor-pointer transition-all hover:shadow-lg ${
               selectedRole === "customer" ? "ring-2 ring-primary" : ""
@@ -66,11 +111,12 @@ const Registration = () => {
             </motion.div>
           </Card>
 
+          {/* Driver Card */}
           <Card
             className={`p-6 cursor-pointer transition-all hover:shadow-lg ${
               selectedRole === "driver" ? "ring-2 ring-primary" : ""
             }`}
-            onClick={() => handleRoleSelection("driver")}
+            onClick={() => setSelectedRole("driver")}
           >
             <motion.div
               whileHover={{ scale: 1.02 }}
@@ -107,6 +153,139 @@ const Registration = () => {
             </motion.div>
           </Card>
         </div>
+
+        {/* Driver Registration Form */}
+        {selectedRole === "driver" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-8"
+          >
+            <Card className="p-6">
+              <h2 className="text-2xl font-semibold mb-6 text-center">
+                Driver Registration
+              </h2>
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-6"
+                >
+                  <FormField
+                    control={form.control}
+                    name="fullName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="John Doe" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="email"
+                            placeholder="john@example.com"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone Number</FormLabel>
+                        <FormControl>
+                          <Input placeholder="+1234567890" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="vehicleType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Vehicle Type</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="flex space-x-4"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="car" id="car" />
+                              <Label htmlFor="car">Car</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem
+                                value="motorcycle"
+                                id="motorcycle"
+                              />
+                              <Label htmlFor="motorcycle">Motorcycle</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="van" id="van" />
+                              <Label htmlFor="van">Van</Label>
+                            </div>
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="licenseNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Driver's License Number</FormLabel>
+                        <FormControl>
+                          <Input placeholder="License number" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="vehiclePlate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Vehicle Plate Number</FormLabel>
+                        <FormControl>
+                          <Input placeholder="ABC123" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button type="submit" className="w-full">
+                    Register as Driver
+                  </Button>
+                </form>
+              </Form>
+            </Card>
+          </motion.div>
+        )}
       </motion.div>
     </div>
   );
