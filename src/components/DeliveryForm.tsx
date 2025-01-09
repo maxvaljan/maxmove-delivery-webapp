@@ -4,7 +4,8 @@ import DeliveryMap from './DeliveryMap';
 import ServiceCard from './ServiceCard';
 import { Button } from './ui/button';
 import { toast } from 'sonner';
-import { MapPin } from 'lucide-react';
+import { MapPin, Clock, Package2, Info } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const DeliveryForm = () => {
   const [pickup, setPickup] = useState('');
@@ -12,28 +13,35 @@ const DeliveryForm = () => {
   const [selectedService, setSelectedService] = useState<'motorcycle' | 'car' | 'van'>();
   const [pickupCoords, setPickupCoords] = useState<[number, number]>();
   const [dropoffCoords, setDropoffCoords] = useState<[number, number]>();
+  const [packageSize, setPackageSize] = useState<'small' | 'medium' | 'large'>('small');
+  const [scheduledTime, setScheduledTime] = useState<Date | null>(null);
 
   const services = [
     {
       type: 'motorcycle' as const,
       price: '$10',
       time: '15-20 min',
+      maxWeight: '5kg',
+      description: 'Best for small packages and documents',
     },
     {
       type: 'car' as const,
       price: '$20',
       time: '20-30 min',
+      maxWeight: '20kg',
+      description: 'Ideal for medium-sized deliveries',
     },
     {
       type: 'van' as const,
       price: '$30',
       time: '25-35 min',
+      maxWeight: '50kg',
+      description: 'Perfect for large items and bulk orders',
     },
   ];
 
   // Simulating geocoding for demo purposes
   const simulateGeocode = (address: string): [number, number] => {
-    // This is just for demonstration - in a real app, you'd use a geocoding service
     return [-74.5 + Math.random() * 0.1, 40 + Math.random() * 0.1];
   };
 
@@ -61,16 +69,30 @@ const DeliveryForm = () => {
       toast.error('Please select a delivery service');
       return;
     }
-    toast.success('Delivery request submitted!');
+    toast.success('Delivery request submitted successfully!', {
+      description: 'A driver will be assigned to your delivery shortly.',
+    });
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8">Schedule a Delivery</h1>
+    <div className="max-w-7xl mx-auto p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h1 className="text-4xl font-bold mb-2 text-secondary">Schedule a Delivery</h1>
+        <p className="text-muted-foreground mb-8">Fast, reliable delivery services at your fingertips</p>
+      </motion.div>
       
       <div className="grid lg:grid-cols-2 gap-8">
-        <div className="space-y-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <motion.div 
+          className="space-y-6"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow-lg">
             <div className="relative space-y-4">
               <LocationInput
                 label="Pickup Location"
@@ -90,7 +112,10 @@ const DeliveryForm = () => {
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Select Vehicle Type</h3>
+              <div className="flex items-center gap-2 mb-4">
+                <Package2 className="w-5 h-5 text-secondary" />
+                <h3 className="text-lg font-semibold">Select Vehicle Type</h3>
+              </div>
               <div className="grid gap-4">
                 {services.map((service) => (
                   <ServiceCard
@@ -98,6 +123,8 @@ const DeliveryForm = () => {
                     type={service.type}
                     price={service.price}
                     time={service.time}
+                    maxWeight={service.maxWeight}
+                    description={service.description}
                     selected={selectedService === service.type}
                     onClick={() => setSelectedService(service.type)}
                   />
@@ -105,18 +132,33 @@ const DeliveryForm = () => {
               </div>
             </div>
 
-            <Button type="submit" className="w-full text-lg py-6">
+            <div className="flex gap-4 items-center bg-muted p-4 rounded-lg">
+              <Info className="w-5 h-5 text-secondary" />
+              <p className="text-sm text-muted-foreground">
+                Prices may vary based on distance and traffic conditions
+              </p>
+            </div>
+
+            <Button 
+              type="submit" 
+              className="w-full text-lg py-6 bg-secondary hover:bg-secondary/90"
+            >
               Request Delivery
             </Button>
           </form>
-        </div>
+        </motion.div>
 
-        <div className="h-[600px]">
+        <motion.div 
+          className="h-[600px]"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
           <DeliveryMap
             pickupLocation={pickupCoords}
             dropoffLocation={dropoffCoords}
           />
-        </div>
+        </motion.div>
       </div>
     </div>
   );

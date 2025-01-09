@@ -29,15 +29,15 @@ export default {
           foreground: "#FFFFFF",
         },
         secondary: {
-          DEFAULT: "#E9ECEF",
-          foreground: "#343A40",
+          DEFAULT: "#8B4513",
+          foreground: "#FFFFFF",
         },
         muted: {
           DEFAULT: "#F8F9FA",
-          foreground: "#868E96",
+          foreground: "#6B5D52",
         },
         accent: {
-          DEFAULT: "#FF6B6B",
+          DEFAULT: "#D2691E",
           foreground: "#FFFFFF",
         },
       },
