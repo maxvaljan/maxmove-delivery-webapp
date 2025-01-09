@@ -10,6 +10,8 @@ const DeliveryForm = () => {
   const [pickup, setPickup] = useState('');
   const [dropoff, setDropoff] = useState('');
   const [selectedService, setSelectedService] = useState<'motorcycle' | 'car' | 'van'>();
+  const [pickupCoords, setPickupCoords] = useState<[number, number]>();
+  const [dropoffCoords, setDropoffCoords] = useState<[number, number]>();
 
   const services = [
     {
@@ -28,6 +30,26 @@ const DeliveryForm = () => {
       time: '25-35 min',
     },
   ];
+
+  // Simulating geocoding for demo purposes
+  const simulateGeocode = (address: string): [number, number] => {
+    // This is just for demonstration - in a real app, you'd use a geocoding service
+    return [-74.5 + Math.random() * 0.1, 40 + Math.random() * 0.1];
+  };
+
+  const handlePickupChange = (value: string) => {
+    setPickup(value);
+    if (value) {
+      setPickupCoords(simulateGeocode(value));
+    }
+  };
+
+  const handleDropoffChange = (value: string) => {
+    setDropoff(value);
+    if (value) {
+      setDropoffCoords(simulateGeocode(value));
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +76,7 @@ const DeliveryForm = () => {
                 label="Pickup Location"
                 placeholder="Enter pickup address"
                 value={pickup}
-                onChange={setPickup}
+                onChange={handlePickupChange}
                 icon={<MapPin className="text-primary" />}
               />
               
@@ -62,7 +84,7 @@ const DeliveryForm = () => {
                 label="Dropoff Location"
                 placeholder="Enter dropoff address"
                 value={dropoff}
-                onChange={setDropoff}
+                onChange={handleDropoffChange}
                 icon={<MapPin className="text-destructive" />}
               />
             </div>
@@ -90,7 +112,10 @@ const DeliveryForm = () => {
         </div>
 
         <div className="h-[600px]">
-          <DeliveryMap />
+          <DeliveryMap
+            pickupLocation={pickupCoords}
+            dropoffLocation={dropoffCoords}
+          />
         </div>
       </div>
     </div>

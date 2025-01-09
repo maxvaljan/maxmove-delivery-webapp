@@ -24,7 +24,7 @@ const DeliveryMap = ({ pickupLocation, dropoffLocation }: DeliveryMapProps) => {
   useEffect(() => {
     if (!mapContainer.current || !isTokenSet) return;
 
-    console.log('Initializing map...');
+    console.log('Initializing map with token...');
     
     mapboxgl.accessToken = token;
     
@@ -37,7 +37,7 @@ const DeliveryMap = ({ pickupLocation, dropoffLocation }: DeliveryMapProps) => {
 
     map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
-    console.log('Map initialized');
+    console.log('Map initialized successfully');
 
     return () => {
       map.current?.remove();
