@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { createClientComponentClient } from "@supabase/auth-helpers-react";
+import { supabase } from "@/lib/supabase";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -9,7 +9,6 @@ interface AuthLayoutProps {
 
 const AuthLayout = ({ children, requireAuth = false }: AuthLayoutProps) => {
   const navigate = useNavigate();
-  const supabase = createClientComponentClient();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -23,7 +22,7 @@ const AuthLayout = ({ children, requireAuth = false }: AuthLayoutProps) => {
     };
 
     checkAuth();
-  }, [navigate, requireAuth, supabase.auth]);
+  }, [navigate, requireAuth]);
 
   return <>{children}</>;
 };

@@ -8,7 +8,7 @@ import { Card } from "../ui/card";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { createClientComponentClient } from "@supabase/auth-helpers-react";
+import { supabase } from "@/lib/supabase";
 import { useState } from "react";
 
 const loginFormSchema = z.object({
@@ -19,7 +19,6 @@ const loginFormSchema = z.object({
 const LoginForm = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const supabase = createClientComponentClient();
 
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
