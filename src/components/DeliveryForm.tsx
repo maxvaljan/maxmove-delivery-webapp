@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import LocationInput from './LocationInput';
 import DeliveryMap from './DeliveryMap';
-import ServiceCard from './ServiceCard';
 import { Button } from './ui/button';
 import { toast } from 'sonner';
-import { MapPin, Clock, Package2, Info, Calendar, Clock3 } from 'lucide-react';
+import { Info } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
+import LocationSection from './delivery/LocationSection';
+import ScheduleSection from './delivery/ScheduleSection';
+import ServicesSection from './delivery/ServicesSection';
 
 const DeliveryForm = () => {
   const [pickup, setPickup] = useState('');
@@ -14,36 +15,8 @@ const DeliveryForm = () => {
   const [selectedService, setSelectedService] = useState<'motorcycle' | 'car' | 'van'>();
   const [pickupCoords, setPickupCoords] = useState<[number, number]>();
   const [dropoffCoords, setDropoffCoords] = useState<[number, number]>();
-  const [packageSize, setPackageSize] = useState<'small' | 'medium' | 'large'>('small');
   const [scheduledTime, setScheduledTime] = useState<Date | null>(null);
   const [isScheduled, setIsScheduled] = useState(false);
-
-  const services = [
-    {
-      type: 'motorcycle' as const,
-      price: '$10',
-      time: '15-20 min',
-      maxWeight: '5kg',
-      description: 'Best for small packages and documents. Quick delivery for urgent items.',
-      features: ['Instant Delivery', 'Real-time Tracking', 'Proof of Delivery'],
-    },
-    {
-      type: 'car' as const,
-      price: '$20',
-      time: '20-30 min',
-      maxWeight: '20kg',
-      description: 'Ideal for medium-sized deliveries. Perfect for multiple packages.',
-      features: ['Multiple Stops', 'Temperature Control', 'Insurance Coverage'],
-    },
-    {
-      type: 'van' as const,
-      price: '$30',
-      time: '25-35 min',
-      maxWeight: '50kg',
-      description: 'Perfect for large items and bulk orders. Best for business deliveries.',
-      features: ['Loading Assistance', 'Route Optimization', 'Dedicated Support'],
-    },
-  ];
 
   const simulateGeocode = (address: string): [number, number] => {
     return [-74.5 + Math.random() * 0.1, 40 + Math.random() * 0.1];
@@ -105,66 +78,22 @@ const DeliveryForm = () => {
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow-lg border border-accent/10">
-            <div className="relative space-y-4">
-              <LocationInput
-                label="Pickup Location"
-                placeholder="Enter pickup address"
-                value={pickup}
-                onChange={handlePickupChange}
-                icon={<MapPin className="text-primary" />}
-              />
-              
-              <LocationInput
-                label="Dropoff Location"
-                placeholder="Enter dropoff address"
-                value={dropoff}
-                onChange={handleDropoffChange}
-                icon={<MapPin className="text-destructive" />}
-              />
+            <LocationSection
+              pickup={pickup}
+              dropoff={dropoff}
+              onPickupChange={handlePickupChange}
+              onDropoffChange={handleDropoffChange}
+            />
 
-              <div className="flex items-center gap-4 mt-4">
-                <Button
-                  type="button"
-                  variant={isScheduled ? "outline" : "secondary"}
-                  className="flex-1"
-                  onClick={() => setIsScheduled(false)}
-                >
-                  <Clock3 className="w-4 h-4 mr-2" />
-                  ASAP
-                </Button>
-                <Button
-                  type="button"
-                  variant={isScheduled ? "secondary" : "outline"}
-                  className="flex-1"
-                  onClick={() => setIsScheduled(true)}
-                >
-                  <Calendar className="w-4 h-4 mr-2" />
-                  Schedule
-                </Button>
-              </div>
-            </div>
+            <ScheduleSection
+              isScheduled={isScheduled}
+              onScheduleChange={setIsScheduled}
+            />
 
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 mb-4">
-                <Package2 className="w-5 h-5 text-primary" />
-                <h3 className="text-lg font-semibold">Select Vehicle Type</h3>
-              </div>
-              <div className="grid gap-4">
-                {services.map((service) => (
-                  <ServiceCard
-                    key={service.type}
-                    type={service.type}
-                    price={service.price}
-                    time={service.time}
-                    maxWeight={service.maxWeight}
-                    description={service.description}
-                    features={service.features}
-                    selected={selectedService === service.type}
-                    onClick={() => setSelectedService(service.type)}
-                  />
-                ))}
-              </div>
-            </div>
+            <ServicesSection
+              selectedService={selectedService}
+              onServiceSelect={setSelectedService}
+            />
 
             <div className="flex gap-4 items-center bg-muted p-4 rounded-lg">
               <Info className="w-5 h-5 text-primary" />
