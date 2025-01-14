@@ -9,6 +9,200 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      customers: {
+        Row: {
+          created_at: string | null
+          default_address: string | null
+          email: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          default_address?: string | null
+          email: string
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          default_address?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      deliveries: {
+        Row: {
+          actual_pickup_time: string | null
+          created_at: string | null
+          customer_id: string | null
+          delivered_time: string | null
+          driver_id: string | null
+          dropoff_address: string
+          dropoff_location: unknown | null
+          id: string
+          package_size: string
+          package_weight: number | null
+          pickup_address: string
+          pickup_location: unknown | null
+          price: number
+          scheduled_pickup_time: string | null
+          special_instructions: string | null
+          status: Database["public"]["Enums"]["delivery_status"] | null
+          updated_at: string | null
+        }
+        Insert: {
+          actual_pickup_time?: string | null
+          created_at?: string | null
+          customer_id?: string | null
+          delivered_time?: string | null
+          driver_id?: string | null
+          dropoff_address: string
+          dropoff_location?: unknown | null
+          id?: string
+          package_size: string
+          package_weight?: number | null
+          pickup_address: string
+          pickup_location?: unknown | null
+          price: number
+          scheduled_pickup_time?: string | null
+          special_instructions?: string | null
+          status?: Database["public"]["Enums"]["delivery_status"] | null
+          updated_at?: string | null
+        }
+        Update: {
+          actual_pickup_time?: string | null
+          created_at?: string | null
+          customer_id?: string | null
+          delivered_time?: string | null
+          driver_id?: string | null
+          dropoff_address?: string
+          dropoff_location?: unknown | null
+          id?: string
+          package_size?: string
+          package_weight?: number | null
+          pickup_address?: string
+          pickup_location?: unknown | null
+          price?: number
+          scheduled_pickup_time?: string | null
+          special_instructions?: string | null
+          status?: Database["public"]["Enums"]["delivery_status"] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deliveries_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deliveries_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      delivery_tracking: {
+        Row: {
+          created_at: string | null
+          delivery_id: string | null
+          id: string
+          location: unknown | null
+          notes: string | null
+          status: Database["public"]["Enums"]["delivery_status"]
+        }
+        Insert: {
+          created_at?: string | null
+          delivery_id?: string | null
+          id?: string
+          location?: unknown | null
+          notes?: string | null
+          status: Database["public"]["Enums"]["delivery_status"]
+        }
+        Update: {
+          created_at?: string | null
+          delivery_id?: string | null
+          id?: string
+          location?: unknown | null
+          notes?: string | null
+          status?: Database["public"]["Enums"]["delivery_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_tracking_delivery_id_fkey"
+            columns: ["delivery_id"]
+            isOneToOne: false
+            referencedRelation: "deliveries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      drivers: {
+        Row: {
+          created_at: string | null
+          current_location: unknown | null
+          email: string
+          full_name: string
+          id: string
+          id_image_url: string | null
+          is_active: boolean | null
+          is_verified: boolean | null
+          license_image_url: string | null
+          license_number: string
+          phone: string
+          updated_at: string | null
+          vehicle_image_url: string | null
+          vehicle_plate: string
+          vehicle_type: Database["public"]["Enums"]["vehicle_type"]
+        }
+        Insert: {
+          created_at?: string | null
+          current_location?: unknown | null
+          email: string
+          full_name: string
+          id: string
+          id_image_url?: string | null
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          license_image_url?: string | null
+          license_number: string
+          phone: string
+          updated_at?: string | null
+          vehicle_image_url?: string | null
+          vehicle_plate: string
+          vehicle_type: Database["public"]["Enums"]["vehicle_type"]
+        }
+        Update: {
+          created_at?: string | null
+          current_location?: unknown | null
+          email?: string
+          full_name?: string
+          id?: string
+          id_image_url?: string | null
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          license_image_url?: string | null
+          license_number?: string
+          phone?: string
+          updated_at?: string | null
+          vehicle_image_url?: string | null
+          vehicle_plate?: string
+          vehicle_type?: Database["public"]["Enums"]["vehicle_type"]
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -44,6 +238,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      delivery_status:
+        | "pending"
+        | "accepted"
+        | "picked_up"
+        | "in_transit"
+        | "delivered"
+        | "cancelled"
       order_status:
         | "pending"
         | "accepted"
@@ -55,6 +256,7 @@ export type Database = {
       payment_method: "card" | "cash" | "wallet" | "other"
       stop_type: "pickup" | "dropoff"
       user_type: "customer" | "driver"
+      vehicle_type: "car" | "motorcycle" | "van"
     }
     CompositeTypes: {
       [_ in never]: never
