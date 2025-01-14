@@ -5,18 +5,54 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import DriverRegistrationForm from "@/components/DriverRegistrationForm";
+import { supabase } from "@/integrations/supabase/client";
 
 const Registration = () => {
   const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState<"driver" | "customer" | null>(
     null
   );
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleRoleSelection = (role: "driver" | "customer") => {
+  const handleRoleSelection = async (role: "driver" | "customer") => {
     setSelectedRole(role);
     if (role === "customer") {
-      toast.success("Registered as customer");
-      navigate("/delivery");
+      setIsLoading(true);
+      try {
+        // Create a random password for the customer
+        const email = prompt("Please enter your email to register:");
+        if (!email) {
+          toast.error("Email is required");
+          return;
+        }
+        const password = Math.random().toString(36).slice(-8);
+        
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              role: 'customer'
+            }
+          }
+        });
+
+        if (error) {
+          console.error("Registration error:", error);
+          toast.error(error.message);
+          return;
+        }
+
+        toast.success("Registration successful! Please check your email to verify your account.");
+        // Store password temporarily so user can see it
+        toast.message(`Your temporary password is: ${password}. Please change it after logging in.`);
+        navigate("/login");
+      } catch (error) {
+        console.error("Registration error:", error);
+        toast.error("An error occurred during registration");
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -65,8 +101,8 @@ const Registration = () => {
               <p className="text-gray-600">
                 Send packages or items to any destination quickly and securely
               </p>
-              <Button className="w-full" variant="outline">
-                Continue as Customer
+              <Button className="w-full" variant="outline" disabled={isLoading}>
+                {isLoading ? "Registering..." : "Continue as Customer"}
               </Button>
             </motion.div>
           </Card>
