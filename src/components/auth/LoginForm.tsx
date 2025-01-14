@@ -8,7 +8,7 @@ import { Card } from "../ui/card";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import { useState } from "react";
 
 const loginFormSchema = z.object({
