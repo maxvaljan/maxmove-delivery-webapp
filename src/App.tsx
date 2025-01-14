@@ -7,6 +7,7 @@ import Registration from "./pages/Registration";
 import Index from "./pages/Index";
 import LoginForm from "./components/auth/LoginForm";
 import AuthLayout from "./components/auth/AuthLayout";
+import Layout from "./components/layout/Layout";
 
 const queryClient = new QueryClient();
 
@@ -16,24 +17,26 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={
-            <AuthLayout>
-              <LoginForm />
-            </AuthLayout>
-          } />
-          <Route path="/register" element={
-            <AuthLayout>
-              <Registration />
-            </AuthLayout>
-          } />
-          <Route path="/delivery" element={
-            <AuthLayout requireAuth>
-              <Index />
-            </AuthLayout>
-          } />
-          <Route path="/" element={<Navigate to="/login" replace />} />
-        </Routes>
+        <Layout>
+          <Routes>
+            <Route path="/login" element={
+              <AuthLayout>
+                <LoginForm />
+              </AuthLayout>
+            } />
+            <Route path="/register" element={
+              <AuthLayout>
+                <Registration />
+              </AuthLayout>
+            } />
+            <Route path="/delivery" element={
+              <AuthLayout requireAuth>
+                <Index />
+              </AuthLayout>
+            } />
+            <Route path="/" element={<Navigate to="/login" replace />} />
+          </Routes>
+        </Layout>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
