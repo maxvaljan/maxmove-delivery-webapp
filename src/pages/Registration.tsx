@@ -6,54 +6,67 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import DriverRegistrationForm from "@/components/DriverRegistrationForm";
 import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+const customerFormSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
 
 const Registration = () => {
   const navigate = useNavigate();
-  const [selectedRole, setSelectedRole] = useState<"driver" | "customer" | null>(
-    null
-  );
+  const [selectedRole, setSelectedRole] = useState<"driver" | "customer" | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleRoleSelection = async (role: "driver" | "customer") => {
-    setSelectedRole(role);
-    if (role === "customer") {
-      setIsLoading(true);
-      try {
-        // Create a random password for the customer
-        const email = prompt("Please enter your email to register:");
-        if (!email) {
-          toast.error("Email is required");
-          return;
-        }
-        const password = Math.random().toString(36).slice(-8);
-        
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              role: 'customer'
-            }
+  const form = useForm<z.infer<typeof customerFormSchema>>({
+    resolver: zodResolver(customerFormSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
+
+  const handleCustomerRegistration = async (values: z.infer<typeof customerFormSchema>) => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password,
+        options: {
+          data: {
+            role: 'customer'
           }
-        });
-
-        if (error) {
-          console.error("Registration error:", error);
-          toast.error(error.message);
-          return;
         }
+      });
 
-        toast.success("Registration successful! Please check your email to verify your account.");
-        // Store password temporarily so user can see it
-        toast.message(`Your temporary password is: ${password}. Please change it after logging in.`);
-        navigate("/login");
-      } catch (error) {
+      if (error) {
         console.error("Registration error:", error);
-        toast.error("An error occurred during registration");
-      } finally {
-        setIsLoading(false);
+        toast.error(error.message);
+        return;
       }
+
+      toast.success("Registration successful! Please check your email to verify your account.");
+      navigate("/login");
+    } catch (error) {
+      console.error("Registration error:", error);
+      toast.error("An error occurred during registration");
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const handleRoleSelection = (role: "driver" | "customer") => {
+    setSelectedRole(role);
   };
 
   return (
@@ -102,7 +115,7 @@ const Registration = () => {
                 Send packages or items to any destination quickly and securely
               </p>
               <Button className="w-full" variant="outline" disabled={isLoading}>
-                {isLoading ? "Registering..." : "Continue as Customer"}
+                Continue as Customer
               </Button>
             </motion.div>
           </Card>
@@ -112,7 +125,7 @@ const Registration = () => {
             className={`p-6 cursor-pointer transition-all hover:shadow-lg ${
               selectedRole === "driver" ? "ring-2 ring-primary" : ""
             }`}
-            onClick={() => setSelectedRole("driver")}
+            onClick={() => handleRoleSelection("driver")}
           >
             <motion.div
               whileHover={{ scale: 1.02 }}
@@ -149,6 +162,65 @@ const Registration = () => {
             </motion.div>
           </Card>
         </div>
+
+        {/* Customer Registration Form */}
+        {selectedRole === "customer" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-8"
+          >
+            <Card className="p-6 max-w-md mx-auto">
+              <h2 className="text-2xl font-semibold mb-6 text-center">Customer Registration</h2>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleCustomerRegistration)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input placeholder="your@email.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="••••••••" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Confirm Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" placeholder="••••••••" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? "Registering..." : "Register"}
+                  </Button>
+                </form>
+              </Form>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Driver Registration Form */}
         {selectedRole === "driver" && <DriverRegistrationForm />}
